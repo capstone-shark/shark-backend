@@ -257,3 +257,6 @@ pyrightconfig.json
 
 # Cython debug symbols
 cython_debug/
+
+# Claude Code
+CLAUDE.md

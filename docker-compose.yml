@@ -1,0 +1,29 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy  # DB 완전히 준비된 후 시작
+    volumes:
+      - ./app:/app/app
+
+  db:
+    image: postgres:15
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d sharkdb"]
+      interval: 5s    # 5초마다 확인
+      timeout: 5s     # 5초 안에 응답 없으면 실패
+      retries: 5      # 5번 재시도
+
+volumes:
+  postgres_data:
