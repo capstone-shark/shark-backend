@@ -1,29 +1,37 @@
 from sqlalchemy.orm import Session
 
-from app.models.sensor import SensorData
-from app.schemas.sensor import SensorDataCreate
+from app.models.sensor import PoseDetection
+from app.schemas.sensor import PoseDetectionCreate
 
 
-class SensorRepository:
-    """DB 쿼리만 담당하는 계층"""
+class PoseRepository:
 
     def __init__(self, db: Session):
         self.db = db
 
-    def create(self, data: SensorDataCreate) -> SensorData:
-        sensor = SensorData(**data.model_dump())
-        self.db.add(sensor)
+    def create(self, data: PoseDetectionCreate) -> PoseDetection:
+        record = PoseDetection(**data.model_dump())
+        self.db.add(record)
         self.db.commit()
-        self.db.refresh(sensor)
-        return sensor
+        self.db.refresh(record)
+        return record
 
-    def get_all(self) -> list[SensorData]:
-        return self.db.query(SensorData).order_by(SensorData.created_at.desc()).all()
+    def get_all(self) -> list[PoseDetection]:
+        return self.db.query(PoseDetection).order_by(PoseDetection.created_at.desc()).all()
 
-    def get_by_device(self, device_id: str) -> list[SensorData]:
+    def get_by_device(self, device_id: str) -> list[PoseDetection]:
         return (
-            self.db.query(SensorData)
-            .filter(SensorData.device_id == device_id)
-            .order_by(SensorData.created_at.desc())
+            self.db.query(PoseDetection)
+            .filter(PoseDetection.device_id == device_id)
+            .order_by(PoseDetection.created_at.desc())
+            .all()
+        )
+
+    def get_alerts(self) -> list[PoseDetection]:
+        """Falling 또는 Lying 상태만 반환"""
+        return (
+            self.db.query(PoseDetection)
+            .filter(PoseDetection.detected_state.in_(["Falling", "Lying"]))
+            .order_by(PoseDetection.created_at.desc())
             .all()
         )

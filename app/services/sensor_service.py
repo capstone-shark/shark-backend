@@ -1,23 +1,23 @@
 from sqlalchemy.orm import Session
 
-from app.repositories.sensor_repository import SensorRepository
-from app.schemas.sensor import SensorDataCreate, SensorDataResponse
+from app.repositories.sensor_repository import PoseRepository
+from app.schemas.sensor import PoseDetectionCreate, PoseDetectionResponse
 
 
-class SensorService:
-    """비즈니스 로직을 담당하는 계층"""
+class PoseService:
 
     def __init__(self, db: Session):
-        self.repo = SensorRepository(db)
+        self.repo = PoseRepository(db)
 
-    def save_sensor_data(self, data: SensorDataCreate) -> SensorDataResponse:
-        sensor = self.repo.create(data)
-        return SensorDataResponse.model_validate(sensor)
+    def save(self, data: PoseDetectionCreate) -> PoseDetectionResponse:
+        record = self.repo.create(data)
+        return PoseDetectionResponse.model_validate(record)
 
-    def get_all_sensor_data(self) -> list[SensorDataResponse]:
-        sensors = self.repo.get_all()
-        return [SensorDataResponse.model_validate(s) for s in sensors]
+    def get_all(self) -> list[PoseDetectionResponse]:
+        return [PoseDetectionResponse.model_validate(r) for r in self.repo.get_all()]
 
-    def get_sensor_data_by_device(self, device_id: str) -> list[SensorDataResponse]:
-        sensors = self.repo.get_by_device(device_id)
-        return [SensorDataResponse.model_validate(s) for s in sensors]
+    def get_by_device(self, device_id: str) -> list[PoseDetectionResponse]:
+        return [PoseDetectionResponse.model_validate(r) for r in self.repo.get_by_device(device_id)]
+
+    def get_alerts(self) -> list[PoseDetectionResponse]:
+        return [PoseDetectionResponse.model_validate(r) for r in self.repo.get_alerts()]
