@@ -1,15 +1,15 @@
 from datetime import datetime
 from typing import Literal
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 PoseState = Literal["Stood", "Sat", "Lying", "Falling", "Walking"]
 
 
 class PoseDetectionCreate(BaseModel):
-    device_id: str
-    sensor_timestamp: int
+    device_id: str = Field(min_length=1, max_length=64)
+    sensor_timestamp: int = Field(gt=0)
     detected_state: PoseState
-    confidence: float
+    confidence: float = Field(ge=0.0, le=1.0)
     probabilities: list[float]  # [Stood, Sat, Lying, Falling, Walking]
 
     @field_validator("probabilities")
@@ -17,6 +17,8 @@ class PoseDetectionCreate(BaseModel):
     def check_length(cls, v):
         if len(v) != 5:
             raise ValueError("probabilities must have 5 values")
+        if any(p < 0.0 or p > 1.0 for p in v):
+            raise ValueError("each probability must be between 0.0 and 1.0")
         return v
 
 
