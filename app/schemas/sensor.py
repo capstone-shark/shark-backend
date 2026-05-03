@@ -1,22 +1,32 @@
 from datetime import datetime
-from pydantic import BaseModel
+from typing import Literal
+from pydantic import BaseModel, field_validator
+
+PoseState = Literal["Stood", "Sat", "Lying", "Falling", "Walking"]
 
 
-# 센서 데이터 생성 요청 시 받는 형식
-class SensorDataCreate(BaseModel):
+class PoseDetectionCreate(BaseModel):
     device_id: str
-    latitude: float
-    longitude: float
-    temperature: float | None = None
+    sensor_timestamp: int
+    detected_state: PoseState
+    confidence: float
+    probabilities: list[float]  # [Stood, Sat, Lying, Falling, Walking]
+
+    @field_validator("probabilities")
+    @classmethod
+    def check_length(cls, v):
+        if len(v) != 5:
+            raise ValueError("probabilities must have 5 values")
+        return v
 
 
-# 센서 데이터 응답 시 내보내는 형식
-class SensorDataResponse(BaseModel):
+class PoseDetectionResponse(BaseModel):
     id: int
     device_id: str
-    latitude: float
-    longitude: float
-    temperature: float | None
+    sensor_timestamp: int
+    detected_state: str
+    confidence: float
+    probabilities: list[float]
     created_at: datetime
 
     class Config:

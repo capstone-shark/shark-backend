@@ -2,25 +2,29 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.sensor import SensorDataCreate, SensorDataResponse
-from app.services.sensor_service import SensorService
+from app.schemas.sensor import PoseDetectionCreate, PoseDetectionResponse
+from app.services.sensor_service import PoseService
 
-router = APIRouter(prefix="/sensors", tags=["sensors"])
-
-
-@router.post("/", response_model=SensorDataResponse)
-def create_sensor_data(data: SensorDataCreate, db: Session = Depends(get_db)):
-    """센서 데이터 저장"""
-    return SensorService(db).save_sensor_data(data)
+router = APIRouter(prefix="/pose", tags=["pose"])
 
 
-@router.get("/", response_model=list[SensorDataResponse])
-def get_all_sensor_data(db: Session = Depends(get_db)):
-    """전체 센서 데이터 조회"""
-    return SensorService(db).get_all_sensor_data()
+@router.post("/", response_model=PoseDetectionResponse)
+def create(data: PoseDetectionCreate, db: Session = Depends(get_db)):
+    """라즈베리파이 → IoT Core → 여기로 자세 감지 결과 수신"""
+    return PoseService(db).save(data)
 
 
-@router.get("/{device_id}", response_model=list[SensorDataResponse])
-def get_sensor_data_by_device(device_id: str, db: Session = Depends(get_db)):
-    """특정 디바이스 센서 데이터 조회"""
-    return SensorService(db).get_sensor_data_by_device(device_id)
+@router.get("/", response_model=list[PoseDetectionResponse])
+def get_all(db: Session = Depends(get_db)):
+    return PoseService(db).get_all()
+
+
+@router.get("/alerts", response_model=list[PoseDetectionResponse])
+def get_alerts(db: Session = Depends(get_db)):
+    """Falling / Lying 상태만 반환 (낙상 알림용)"""
+    return PoseService(db).get_alerts()
+
+
+@router.get("/{device_id}", response_model=list[PoseDetectionResponse])
+def get_by_device(device_id: str, db: Session = Depends(get_db)):
+    return PoseService(db).get_by_device(device_id)
