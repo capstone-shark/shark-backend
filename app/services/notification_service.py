@@ -26,7 +26,7 @@ def _init_firebase() -> None:
     _firebase_initialized = True
 
 
-def send_fall_alert(db: Session, device_id: str, confidence: float) -> None:
+def send_fall_alert(db: Session, device_id: str) -> None:
     _init_firebase()
     if not _firebase_initialized:
         return
@@ -40,7 +40,7 @@ def send_fall_alert(db: Session, device_id: str, confidence: float) -> None:
         tokens=tokens,
         notification=messaging.Notification(
             title="낙상 감지 경고",
-            body=f"장치 {device_id}에서 낙상이 감지되었습니다. (신뢰도: {confidence:.1%})",
+            body=f"장치 {device_id}에서 낙상이 감지되었습니다.",
         ),
         android=messaging.AndroidConfig(
             priority="high",
