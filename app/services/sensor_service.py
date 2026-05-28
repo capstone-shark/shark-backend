@@ -19,7 +19,7 @@ class PoseService:
         record = self.repo.create(data)
         if record.detected_state == "Falling":
             try:
-                send_fall_alert(self.db, record.device_id, record.confidence)
+                send_fall_alert(self.db, record.device_id)
             except Exception:
                 logger.exception("FCM alert failed for device %s — data saved", record.device_id)
         return PoseDetectionResponse.model_validate(record)
