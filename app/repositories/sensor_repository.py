@@ -27,6 +27,14 @@ class PoseRepository:
             .all()
         )
 
+    def get_by_device_asc(self, device_id: str) -> list[PoseDetection]:
+        return (
+            self.db.query(PoseDetection)
+            .filter(PoseDetection.device_id == device_id)
+            .order_by(PoseDetection.created_at.asc())
+            .all()
+        )
+
     def get_alerts(self) -> list[PoseDetection]:
         """Falling 또는 Lying 상태만 반환"""
         return (

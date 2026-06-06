@@ -62,6 +62,13 @@ def get_alerts(request: Request, db: Session = Depends(get_db), _=Depends(verify
     return PoseService(db).get_alerts()
 
 
+@router.get("/{device_id}/events", response_model=list[PoseDetectionResponse])
+@limiter.limit("60/minute")
+def get_events(request: Request, device_id: str, db: Session = Depends(get_db), _=Depends(verify_api_key)):
+    """자세 변경(5프레임 중 3프레임 이상) / 30초 heartbeat / 낙상 즉시 — 세 조건 기준 이벤트 로그"""
+    return PoseService(db).get_events(device_id)
+
+
 @router.get("/{device_id}", response_model=list[PoseDetectionResponse])
 @limiter.limit("60/minute")
 def get_by_device(request: Request, device_id: str, db: Session = Depends(get_db), _=Depends(verify_api_key)):
