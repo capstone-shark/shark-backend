@@ -19,14 +19,6 @@ class PoseRepository:
     def get_all(self) -> list[PoseDetection]:
         return self.db.query(PoseDetection).order_by(PoseDetection.created_at.desc()).all()
 
-    def get_all_asc_by_device(self) -> list[PoseDetection]:
-        """전체 레코드를 (device_id, created_at) 오름차순으로. 디바이스별 디바운스 재생용."""
-        return (
-            self.db.query(PoseDetection)
-            .order_by(PoseDetection.device_id, PoseDetection.created_at.asc())
-            .all()
-        )
-
     def get_by_device(self, device_id: str) -> list[PoseDetection]:
         return (
             self.db.query(PoseDetection)
